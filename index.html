@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRATHEEN — AI Engineer · Web Developer · Mobile Engineer</title>
+<meta name="description" content="Pratheen Pininiti — AI Engineer, Web Developer, Mobile Engineer. Learn tech. Create new tech.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0908;
+  --ink2:#12100e;
+  --cream:#f2ede2;
+  --cream-dim:rgba(242,237,226,.55);
+  --orange:#ff5c00;
+  --orange-soft:rgba(255,92,0,.14);
+  --line:rgba(242,237,226,.14);
+  --display:'Anton',Impact,sans-serif;
+  --body:'Space Grotesk',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:var(--ink)}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{
+  background:var(--ink);
+  color:var(--cream);
+  font-family:var(--body);
+  font-weight:300;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--orange);color:var(--ink)}
+a{color:inherit;text-decoration:none}
+.display{font-family:var(--display);text-transform:uppercase;line-height:.92;letter-spacing:.005em}
+canvas.seq{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* ---------- grain + progress ---------- */
+#grain{position:fixed;inset:-100px;z-index:200;pointer-events:none;opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 8s steps(10) infinite}
+@keyframes grain{
+  0%,100%{transform:translate(0,0)}10%{transform:translate(-5%,-8%)}20%{transform:translate(-12%,3%)}
+  30%{transform:translate(6%,-10%)}40%{transform:translate(-4%,12%)}50%{transform:translate(-10%,4%)}
+  60%{transform:translate(12%,0)}70%{transform:translate(0,10%)}80%{transform:translate(-14%,0)}90%{transform:translate(8%,4%)}
+}
+#progress{position:fixed;top:0;left:0;height:2px;width:100%;z-index:210;transform-origin:0 50%;transform:scaleX(0);background:var(--orange)}
+
+/* ---------- glowing cursor ---------- */
+#cursor{display:none;position:fixed;top:0;left:0;width:16px;height:16px;border-radius:50%;pointer-events:none;z-index:400;
+  background:radial-gradient(circle at 35% 35%,#1c1712,#0a0908 70%);border:1px solid rgba(255,92,0,.65);
+  box-shadow:0 0 14px rgba(255,92,0,.6),0 0 42px rgba(255,92,0,.28)}
+@media (pointer:fine){
+  body,a,button,.card,.mini{cursor:none}
+  #cursor{display:block}
+}
+
+/* ---------- preloader ---------- */
+#loader{position:fixed;inset:0;z-index:300;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2.2rem}
+#loader .display{font-size:clamp(2.4rem,7vw,5.5rem);overflow:hidden}
+#loader .display span{display:inline-block;transform:translateY(110%)}
+#loader .bar{width:min(360px,60vw);height:1px;background:var(--line);position:relative;overflow:hidden}
+#loader .bar i{position:absolute;inset:0;background:var(--orange);transform-origin:0 50%;transform:scaleX(0)}
+#loader .pct{font-size:.75rem;letter-spacing:.35em;color:var(--cream-dim)}
+
+/* ---------- nav ---------- */
+header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;
+  padding:1.4rem 2.2rem;mix-blend-mode:difference;opacity:0}
+header .mark{font-family:var(--display);font-size:1.15rem;letter-spacing:.08em}
+header .mark sup{color:var(--orange);font-size:.6em}
+header nav{display:flex;gap:2rem;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase}
+header nav a{opacity:.7;transition:opacity .3s}
+header nav a:hover{opacity:1}
+
+/* ---------- section chrome ---------- */
+.tag{display:flex;align-items:center;gap:.9rem;font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--cream-dim)}
+.tag::before{content:"";width:2.6rem;height:1px;background:var(--orange)}
+.pad{padding:0 clamp(1.4rem,5vw,5rem)}
+
+/* ---------- hero ---------- */
+#hero{position:relative;height:100vh;overflow:hidden}
+#hero .veil{position:absolute;inset:0;background:
+  radial-gradient(120% 90% at 50% 110%,rgba(10,9,8,.92) 0%,rgba(10,9,8,.25) 55%,rgba(10,9,8,.45) 100%);}
+#hero .vlines{position:absolute;inset:0;background:
+  linear-gradient(rgba(10,9,8,.65),rgba(10,9,8,0) 22%,rgba(10,9,8,0) 70%,rgba(10,9,8,.85))}
+#hero .content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 7.5vh}
+#name{font-size:clamp(4rem,17.5vw,19rem);text-align:center;white-space:nowrap;position:relative;z-index:3}
+#name .l{display:inline-block;transform:translateY(115%) rotate(6deg);will-change:transform}
+#name .wrap{display:block;overflow:hidden;padding-top:.06em}
+#roles{display:flex;justify-content:center;margin-top:2.6vh;height:1.6em;overflow:hidden;font-size:clamp(.8rem,1.5vw,1.15rem);letter-spacing:.5em;text-transform:uppercase;color:var(--cream)}
+#roles .role{position:absolute;opacity:0;display:flex;align-items:center;gap:1rem}
+#roles .role em{font-style:normal;color:var(--orange)}
+#pill{position:absolute;top:12vh;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:.6rem;
+  border:1px solid var(--line);border-radius:99px;padding:.55rem 1.15rem;font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;
+  background:rgba(10,9,8,.35);backdrop-filter:blur(8px);opacity:0}
+#pill i{width:.5rem;height:.5rem;border-radius:50%;background:var(--orange);box-shadow:0 0 12px var(--orange);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.4}}
+#scrollcue{position:absolute;bottom:2.2vh;left:50%;transform:translateX(-50%);font-size:.62rem;letter-spacing:.45em;text-transform:uppercase;color:var(--cream-dim);opacity:0}
+#scrollcue::after{content:"";display:block;width:1px;height:2.4rem;background:linear-gradient(var(--orange),transparent);margin:.7rem auto 0;animation:drop 1.8s infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ---------- manifesto ---------- */
+#manifesto{position:relative;padding:22vh 0;overflow:hidden;background:var(--ink)}
+#manifesto .line{white-space:nowrap;font-size:clamp(3.4rem,11.5vw,12.5rem);will-change:transform}
+#manifesto .line.two{color:transparent;-webkit-text-stroke:1.5px var(--cream);margin-top:1.5vh}
+#manifesto .line .accent{color:var(--orange);-webkit-text-stroke:0}
+#manifesto .tag{justify-content:center;margin-bottom:6vh}
+#manifesto .tag::before{display:none}
+
+/* ---------- about ---------- */
+#about{position:relative;padding:16vh clamp(1.4rem,5vw,5rem) 14vh;border-top:1px solid var(--line)}
+#about .grid{display:grid;grid-template-columns:1fr 2fr;gap:4rem;align-items:start}
+#about p{font-size:clamp(1.25rem,2.35vw,2.15rem);line-height:1.45;font-weight:300;max-width:52ch}
+#about p+p{margin-top:1.4em}
+#about .hl{color:var(--orange)}
+#about .big-num{font-family:var(--display);font-size:clamp(4rem,9vw,9rem);color:transparent;-webkit-text-stroke:1px rgba(242,237,226,.25);line-height:1;margin-top:2rem}
+@media(max-width:800px){#about .grid{grid-template-columns:1fr}}
+
+/* ---------- stats ---------- */
+#stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr)}
+#stats .stat{padding:5.5vh 2rem;text-align:center;position:relative}
+#stats .stat+.stat{border-left:1px solid var(--line)}
+#stats .num{font-family:var(--display);font-size:clamp(3rem,7.5vw,7rem);line-height:1;color:var(--cream)}
+#stats .num .sfx{color:var(--orange)}
+#stats .lbl{margin-top:1rem;font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--cream-dim);line-height:1.8}
+@media(max-width:800px){#stats{grid-template-columns:1fr}#stats .stat+.stat{border-left:0;border-top:1px solid var(--line)}}
+
+/* ---------- pillars ---------- */
+#pillars{position:relative;height:100vh;overflow:hidden}
+#pillars .veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,9,8,.93) 0%,rgba(10,9,8,.72) 45%,rgba(10,9,8,.25) 100%)}
+#pillars .content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:0}
+#pillars .tag{margin-bottom:5vh}
+.pillar{border-top:1px solid var(--line);padding:3.2vh 0;display:grid;grid-template-columns:auto 1fr;gap:2.5rem;align-items:baseline;opacity:.13;transform:translateX(2.5rem);max-width:920px}
+.pillar:last-of-type{border-bottom:1px solid var(--line)}
+.pillar .idx{font-size:.8rem;letter-spacing:.2em;color:var(--orange)}
+.pillar h3{font-family:var(--display);text-transform:uppercase;font-size:clamp(2rem,5.2vw,4.6rem);line-height:1}
+.pillar p{margin-top:.9rem;font-size:clamp(.9rem,1.35vw,1.15rem);color:var(--cream-dim);max-width:44ch}
+
+/* ---------- work ---------- */
+#work{position:relative;height:100vh;overflow:hidden}
+#work .veil{position:absolute;inset:0;background:linear-gradient(rgba(10,9,8,.88),rgba(10,9,8,.62) 40%,rgba(10,9,8,.9))}
+#work .head{position:absolute;top:9vh;left:0;right:0;z-index:3;display:flex;justify-content:space-between;align-items:baseline}
+#work h2{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.6rem,7vw,6.5rem);line-height:1}
+#work .count{font-size:.75rem;letter-spacing:.3em;color:var(--cream-dim)}
+#track{position:absolute;top:32vh;left:0;display:flex;gap:2.5vw;padding:0 clamp(1.4rem,5vw,5rem);will-change:transform}
+.card{width:min(560px,72vw);flex-shrink:0;border:1px solid var(--line);background:rgba(12,10,9,.55);backdrop-filter:blur(10px);
+  padding:2.4rem 2.4rem 2.8rem;position:relative;transition:border-color .4s;transform-style:preserve-3d;cursor:pointer}
+.card:hover{border-color:var(--orange)}
+.card .cidx{font-family:var(--display);font-size:5rem;line-height:1;color:transparent;-webkit-text-stroke:1px rgba(242,237,226,.3);transition:.4s}
+.card:hover .cidx{-webkit-text-stroke:1px var(--orange)}
+.card h3{font-family:var(--display);text-transform:uppercase;font-size:clamp(1.5rem,2.6vw,2.3rem);margin:1.6rem 0 .9rem;line-height:1.05}
+.card p{color:var(--cream-dim);font-size:1rem;line-height:1.6}
+.card .ctag{position:absolute;top:2.4rem;right:2.4rem;font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--orange)}
+.card .arrow{margin-top:2rem;font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--orange);transition:transform .4s}
+.card:hover .arrow{transform:translateX(.6rem)}
+
+/* ---------- project modal ---------- */
+#pmodal{position:fixed;inset:0;z-index:250;display:none}
+#pmodal .scrim{position:absolute;inset:0;background:rgba(10,9,8,.8);backdrop-filter:blur(16px)}
+#pmodal .sheet{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain}
+#pmodal .inner{max-width:1020px;margin:0 auto;padding:13vh clamp(1.4rem,4vw,4rem) 12vh;position:relative}
+#pmodal .close{position:fixed;top:1.5rem;right:1.8rem;z-index:5;font-family:var(--body);font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--cream);border:1px solid var(--line);border-radius:99px;padding:.85rem 1.5rem;cursor:pointer;background:rgba(10,9,8,.6);transition:.3s}
+#pmodal .close:hover{border-color:var(--orange);color:var(--orange)}
+#pmodal .ptag{font-size:.68rem;letter-spacing:.4em;text-transform:uppercase;color:var(--orange)}
+#pmodal h2{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.4rem,6.5vw,5.2rem);line-height:.95;margin:.7rem 0 1.2rem;color:var(--cream)}
+#pmodal .sub{font-size:1.1rem;color:var(--cream-dim);line-height:1.6;max-width:60ch}
+#pmodal .meta{display:flex;gap:2.5rem;font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--cream-dim);margin:3vh 0 4vh}
+#pmodal .meta b{color:var(--orange);font-weight:400}
+#pmodal img{width:100%;display:block;border:1px solid var(--line);margin:3vh 0;background:var(--ink2)}
+#pmodal .duo{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin:3vh 0}
+#pmodal .duo img{margin:0}
+#pmodal .sec{font-size:.66rem;letter-spacing:.35em;color:var(--orange);text-transform:uppercase;margin:6vh 0 1.4rem;display:flex;align-items:center;gap:1rem}
+#pmodal .sec::after{content:"";flex:1;height:1px;background:var(--line)}
+#pmodal p{color:var(--cream);opacity:.85;font-size:1.02rem;line-height:1.75;margin-bottom:1.2em;max-width:72ch;font-weight:300}
+#pmodal .chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:3vh 0}
+#pmodal .chip{background:var(--ink);padding:1.3rem 1rem;text-align:center}
+#pmodal .chip b{font-family:var(--display);font-size:1.7rem;color:var(--orange);display:block;font-weight:400;margin-bottom:.4rem}
+#pmodal .chip span{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--cream-dim)}
+@media(max-width:700px){#pmodal .duo{grid-template-columns:1fr}}
+#next .teaser+.teaser{margin-top:1.5rem}
+
+/* ---------- recent builds ---------- */
+#recent{padding:15vh clamp(1.4rem,5vw,5rem) 12vh;border-top:1px solid var(--line)}
+#recent .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6vh}
+#recent h2{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.2rem,5.5vw,5rem);line-height:1}
+#recent .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.mini{background:var(--ink);padding:1.9rem 1.7rem 2.2rem;position:relative;overflow:hidden;transition:background .35s}
+.mini::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--orange);transition:width .45s}
+.mini:hover{background:var(--ink2)}
+.mini:hover::after{width:100%}
+.mini .midx{font-size:.65rem;letter-spacing:.25em;color:var(--orange)}
+.mini h3{font-family:var(--display);text-transform:uppercase;font-size:1.5rem;margin:.9rem 0 .7rem;transition:transform .35s}
+.mini:hover h3{transform:translateX(.4rem)}
+.mini p{color:var(--cream-dim);font-size:.88rem;line-height:1.6}
+
+/* ---------- next ---------- */
+#next{padding:0 0 14vh;overflow:hidden}
+#next .marquee{display:flex;white-space:nowrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:1.1rem 0;margin-bottom:9vh}
+#next .marquee span{font-family:var(--display);text-transform:uppercase;font-size:1.3rem;letter-spacing:.12em;padding-right:2.5rem;color:var(--cream-dim);animation:mq 22s linear infinite}
+#next .marquee span b{color:var(--orange);font-weight:400}
+@keyframes mq{to{transform:translateX(-100%)}}
+#next .teaser{display:grid;grid-template-columns:auto 1fr;gap:4rem;align-items:center;border:1px solid var(--line);padding:4rem;position:relative;background:linear-gradient(120deg,var(--ink2),rgba(255,92,0,.05))}
+#next .teaser .badge{position:absolute;top:2rem;right:2rem;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--orange);border:1px solid rgba(255,92,0,.5);border-radius:99px;padding:.5rem 1rem;animation:pulse 2.4s infinite}
+#next .teaser h3{font-family:var(--display);text-transform:uppercase;font-size:clamp(2rem,5vw,4.4rem);line-height:.98}
+#next .teaser p{margin-top:1.4rem;color:var(--cream-dim);font-size:1.05rem;line-height:1.65;max-width:52ch}
+#next .teaser .sub{margin-top:1.6rem;font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;color:var(--orange)}
+@media(max-width:800px){#next .teaser{grid-template-columns:1fr;padding:2.4rem}}
+
+/* ---------- finale ---------- */
+#finale{padding:20vh clamp(1.4rem,5vw,5rem) 0;text-align:center;border-top:1px solid var(--line);position:relative}
+#finale h2{font-family:var(--display);text-transform:uppercase;font-size:clamp(2.8rem,9.5vw,10rem);line-height:.95}
+#finale h2 .accent{color:var(--orange)}
+#finale h2 .row{display:block;overflow:hidden}
+#finale h2 .row span{display:inline-block;transform:translateY(110%)}
+#finale .btns{display:flex;gap:1.2rem;justify-content:center;margin:7vh 0 16vh;flex-wrap:wrap}
+.btn{font-size:.75rem;letter-spacing:.32em;text-transform:uppercase;padding:1.25rem 2.6rem;border-radius:99px;border:1px solid var(--orange);transition:.35s;display:inline-block}
+.btn.solid{background:var(--orange);color:var(--ink);font-weight:500}
+.btn.solid:hover{background:var(--cream);border-color:var(--cream)}
+.btn.ghost:hover{background:var(--orange-soft)}
+footer{border-top:1px solid var(--line);padding:2.2rem 0;display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap}
+footer .links{display:flex;gap:2.2rem;font-size:.7rem;letter-spacing:.28em;text-transform:uppercase}
+footer .links a{color:var(--cream-dim);transition:color .3s}
+footer .links a:hover{color:var(--orange)}
+footer .credit{font-size:.7rem;letter-spacing:.2em;color:var(--cream-dim)}
+</style>
+</head>
+<body>
+
+<div id="grain"></div>
+<div id="progress"></div>
+<div id="cursor"></div>
+
+<div id="loader">
+  <div class="display"><span>PRATHEEN</span></div>
+  <div class="bar"><i></i></div>
+  <div class="pct">00%</div>
+</div>
+
+<header>
+  <a class="mark" href="#hero">PRATHEEN<sup>&reg;</sup></a>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#work">Work</a>
+    <a href="#finale">Contact</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas class="seq" id="cv-orbit"></canvas>
+  <div class="veil"></div>
+  <div class="vlines"></div>
+  <div id="pill"><i></i>Available for work</div>
+  <div class="content">
+    <h1 id="name" class="display"><span class="wrap"></span></h1>
+    <div id="roles">
+      <div class="role"><em>&#9670;</em>AI Engineer<em>&#9670;</em></div>
+      <div class="role"><em>&#9670;</em>Web Developer<em>&#9670;</em></div>
+      <div class="role"><em>&#9670;</em>Mobile Engineer<em>&#9670;</em></div>
+    </div>
+  </div>
+  <div id="scrollcue">Scroll</div>
+</section>
+
+<!-- MANIFESTO -->
+<section id="manifesto">
+  <div class="tag">The Manifesto</div>
+  <div class="line display one">Learn Tech. Learn Tech. Learn Tech.</div>
+  <div class="line display two">Create <span class="accent">New</span> Tech. Create <span class="accent">New</span> Tech.</div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="pad">
+  <div class="grid">
+    <div>
+      <div class="tag">Who I Am</div>
+      <div class="big-num">360&deg;</div>
+    </div>
+    <div class="bio">
+      <p>I'm an AI and Mobile Engineer who sees technology as a <span class="hl">complete ecosystem</span> — from the individual pixel to the entire cloud-based system. My work spans AI, mobile apps, image processing, and product design, because I don't just focus on the code — I study the hardware, the user experience, and the business strategy behind it.</p>
+      <p>That <span class="hl">360-degree view</span> is my greatest strength: it lets me build products that are genuinely integrated and intelligent. I'm always looking toward the next frontier — <span class="hl">quantum computing, nanotechnology</span> — because connecting disciplines is how you build technology that's not just smart, but meaningful.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="stat"><div class="num"><span class="cnt" data-to="9">0</span><span class="sfx">+</span></div><div class="lbl">Projects Shipped</div></div>
+  <div class="stat"><div class="num"><span class="cnt" data-to="3.9" data-dec="1">0.0</span></div><div class="lbl">GPA — MS AI<br>Florida Atlantic University</div></div>
+  <div class="stat"><div class="num"><span class="cnt" data-to="1">0</span></div><div class="lbl">Published Thesis<br>Canon SPAD Camera Research Collab</div></div>
+</section>
+
+<!-- PILLARS -->
+<section id="pillars">
+  <canvas class="seq" id="cv-builder"></canvas>
+  <div class="veil"></div>
+  <div class="content pad">
+    <div class="tag">Three Pillars</div>
+    <div class="pillar" data-p="0">
+      <div class="idx">01</div>
+      <div><h3>AI Engineering</h3><p>Hardware-aware AI, image processing, applied research.</p></div>
+    </div>
+    <div class="pillar" data-p="1">
+      <div class="idx">02</div>
+      <div><h3>Mobile Engineering</h3><p>Clean, glass-UI native apps built for real daily use.</p></div>
+    </div>
+    <div class="pillar" data-p="2">
+      <div class="idx">03</div>
+      <div><h3>Web Development</h3><p>Immersive, 3D, motion-driven web experiences — like this site.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <canvas class="seq" id="cv-closer"></canvas>
+  <div class="veil"></div>
+  <div class="head pad">
+    <h2>Selected Work</h2>
+    <div class="count">( 03 )</div>
+  </div>
+  <div id="track">
+    <div class="card" data-proj="cam">
+      <div class="ctag">AI &middot; Imaging</div>
+      <div class="cidx">01</div>
+      <h3>Camera App with AI</h3>
+      <p>AI-driven camera app for high-quality imaging with reduced file size.</p>
+      <div class="arrow">Expand Case Study &#8594;</div>
+    </div>
+    <div class="card" data-proj="bud">
+      <div class="ctag">Mobile &middot; Fintech</div>
+      <div class="cidx">02</div>
+      <h3>Budget Flow</h3>
+      <p>A clean, glass-UI budgeting app, built because every other one was cluttered with ads and noise.</p>
+      <div class="arrow">Expand Case Study &#8594;</div>
+    </div>
+    <div class="card" data-proj="spad">
+      <div class="ctag">3D &middot; Visual</div>
+      <div class="cidx">03</div>
+      <h3>3D Modeling &amp; Compositing</h3>
+      <p>Blender-built 3D and compositing workflow using layered geometric frameworks for immersive visual storytelling.</p>
+      <div class="arrow">Expand Case Study &#8594;</div>
+    </div>
+  </div>
+</section>
+
+<!-- RECENT BUILDS -->
+<section id="recent" class="pad">
+  <div class="head">
+    <h2>Recent Builds</h2>
+    <div class="count tag">Fresh off the bench</div>
+  </div>
+  <div class="grid">
+    <div class="mini"><div class="midx">R-01</div><h3>Signal</h3><p>A minimalist, voice-first idea-capture Android app with on-device transcription and optional AI enhancement.</p></div>
+    <div class="mini"><div class="midx">R-02</div><h3>NeuroPulse</h3><p>Stroke-risk prediction (XGBoost) visualized through an interactive 3D brain built in Three.js.</p></div>
+    <div class="mini"><div class="midx">R-03</div><h3>Warroom</h3><p>A multi-agent research and execution platform built on LangGraph, combining ReAct reasoning with RAG.</p></div>
+    <div class="mini"><div class="midx">R-04</div><h3>FocusFeed</h3><p>An Android AccessibilityService overlay that blocks distracting apps and feeds in real time.</p></div>
+  </div>
+</section>
+
+<!-- WHAT'S NEXT -->
+<section id="next">
+  <div class="marquee">
+    <span>What's Next <b>&#10022;</b> What's Next <b>&#10022;</b> What's Next <b>&#10022;</b> What's Next <b>&#10022;</b> What's Next <b>&#10022;</b> What's Next <b>&#10022;</b> </span>
+    <span>What's Next <b>&#10022;</b> What's Next <b>&#10022;</b> What's Next <b>&#10022;</b> What's Next <b>&#10022;</b> What's Next <b>&#10022;</b> What's Next <b>&#10022;</b> </span>
+  </div>
+  <div class="pad">
+    <div class="teaser">
+      <div class="display" style="font-size:clamp(3rem,7vw,6rem);color:transparent;-webkit-text-stroke:1px var(--orange)">2x</div>
+      <div>
+        <div class="badge">In Progress</div>
+        <h3>Dual Image Processing</h3>
+        <p>AI-stitching and spatial computing to intelligently merge data from multiple sensors. Hardware-aware AI, in progress.</p>
+        <div class="sub">Hardware-Aware AI &middot; Spatial Computing</div>
+      </div>
+    </div>
+    <div class="teaser">
+      <div class="display" style="font-size:clamp(3rem,7vw,6rem);color:transparent;-webkit-text-stroke:1px var(--orange)">AR</div>
+      <div>
+        <div class="badge">Startup Potential</div>
+        <h3>Auraltr</h3>
+        <p>Virtual try-on and contextual fashion ads powered by CLIP embeddings and the FASHN API. Currently exploring this as a startup &mdash; turning try-before-you-buy into an ad format.</p>
+        <div class="sub">CLIP Embeddings &middot; FASHN API &middot; Building Toward a Startup</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINALE -->
+<section id="finale" class="pad">
+  <h2 class="display">
+    <span class="row"><span>Let's Build</span></span>
+    <span class="row"><span>Something <span class="accent">Exceptional</span></span></span>
+  </h2>
+  <div class="btns">
+    <a class="btn solid" href="resume.pdf" target="_blank">View Resume</a>
+    <a class="btn ghost" href="mailto:ppratheen@gmail.com">Get In Touch</a>
+  </div>
+  <footer>
+    <div class="links">
+      <a href="https://www.linkedin.com/in/pratheen/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/pratheen13" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <div class="credit">&copy; Pratheen Reddy Pininiti</div>
+  </footer>
+</section>
+
+<div id="pmodal" aria-hidden="true">
+  <div class="scrim"></div>
+  <div class="sheet" data-lenis-prevent><div class="inner" id="pm-inner"></div></div>
+  <button class="close" id="pm-close">Close &#10005;</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+<script>
+/* ============================================================
+   PRATHEEN — cinematic scroll portfolio
+   ============================================================ */
+gsap.registerPlugin(ScrollTrigger);
+
+/* ---------- smooth scroll ---------- */
+const lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1 });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(t => lenis.raf(t * 1000));
+gsap.ticker.lagSmoothing(0);
+
+/* ---------- frame scrubber ---------- */
+class Scrub {
+  constructor(sel, dir, count) {
+    this.cv = document.querySelector(sel);
+    this.cx = this.cv.getContext('2d');
+    this.dir = dir; this.count = count;
+    this.imgs = []; this.loaded = 0;
+    this.cur = 0; this.target = 0; this.drawn = -1;
+    this.ready = false;
+  }
+  src(i) { return `frames/${this.dir}/f_${String(i + 1).padStart(3, '0')}.jpg`; }
+  load(onprog) {
+    return new Promise(res => {
+      for (let i = 0; i < this.count; i++) {
+        const im = new Image();
+        im.onload = im.onerror = () => {
+          this.loaded++;
+          onprog && onprog(this.loaded / this.count);
+          if (this.loaded === this.count) { this.ready = true; this.draw(Math.round(this.cur)); res(); }
+        };
+        im.src = this.src(i);
+        this.imgs[i] = im;
+      }
+    });
+  }
+  resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    this.cv.width = this.cv.clientWidth * dpr;
+    this.cv.height = this.cv.clientHeight * dpr;
+    this.drawn = -1;
+    if (this.ready) this.draw(Math.round(this.cur));
+  }
+  draw(i) {
+    const im = this.imgs[i];
+    if (!im || !im.naturalWidth) return;
+    const cw = this.cv.width, ch = this.cv.height;
+    const s = Math.max(cw / im.naturalWidth, ch / im.naturalHeight);
+    const w = im.naturalWidth * s, h = im.naturalHeight * s;
+    this.cx.drawImage(im, (cw - w) / 2, (ch - h) / 2, w, h);
+    this.drawn = i;
+  }
+  tick() {
+    if (!this.ready) return;
+    this.cur += (this.target - this.cur) * 0.16;
+    const f = Math.max(0, Math.min(this.count - 1, Math.round(this.cur)));
+    if (f !== this.drawn) this.draw(f);
+  }
+}
+
+const orbit   = new Scrub('#cv-orbit',   'orbit',   300);
+const builder = new Scrub('#cv-builder', 'builder', 157);
+const closer  = new Scrub('#cv-closer',  'closer',  150);
+const scrubs = [orbit, builder, closer];
+
+function resizeAll() { scrubs.forEach(s => s.resize()); }
+window.addEventListener('resize', resizeAll);
+resizeAll();
+gsap.ticker.add(() => scrubs.forEach(s => s.tick()));
+
+/* ---------- split hero name into letters ---------- */
+const nameWrap = document.querySelector('#name .wrap');
+'PRATHEEN'.split('').forEach(ch => {
+  const s = document.createElement('span');
+  s.className = 'l'; s.textContent = ch;
+  nameWrap.appendChild(s);
+});
+
+/* ---------- preloader ---------- */
+const pctEl = document.querySelector('#loader .pct');
+const barEl = document.querySelector('#loader .bar i');
+gsap.to('#loader .display span', { y: 0, duration: .9, ease: 'power3.out', delay: .15 });
+
+orbit.load(p => {
+  pctEl.textContent = String(Math.round(p * 100)).padStart(2, '0') + '%';
+  gsap.set(barEl, { scaleX: p });
+}).then(() => {
+  // lazy-load the other two sequences in the background
+  builder.load().then(() => closer.load());
+  intro();
+});
+
+function intro() {
+  const tl = gsap.timeline();
+  tl.to('#loader .display span', { y: '-110%', duration: .6, ease: 'power3.in' })
+    .to('#loader', { yPercent: -100, duration: .9, ease: 'power4.inOut' }, '-=.15')
+    .set('#loader', { display: 'none' })
+    .to('#name .l', { y: 0, rotate: 0, duration: 1.1, ease: 'power4.out', stagger: .055 }, '-=.55')
+    .to('#pill', { opacity: 1, duration: .8 }, '-=.5')
+    .to('header', { opacity: 1, duration: .8 }, '<')
+    .to('#scrollcue', { opacity: 1, duration: .8 }, '<.2')
+    .add(() => startRoles(), '-=.8');
+}
+
+/* ---------- cycling roles ---------- */
+const roles = gsap.utils.toArray('#roles .role');
+let roleIdx = 0;
+function startRoles() {
+  gsap.set(roles[0], { opacity: 1, y: 0 });
+  setInterval(() => {
+    const cur = roles[roleIdx];
+    roleIdx = (roleIdx + 1) % roles.length;
+    const nxt = roles[roleIdx];
+    gsap.to(cur, { opacity: 0, y: -18, duration: .45, ease: 'power2.in' });
+    gsap.fromTo(nxt, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .45, ease: 'power2.out', delay: .4 });
+  }, 2400);
+}
+
+/* ---------- global progress bar ---------- */
+gsap.to('#progress', {
+  scaleX: 1, ease: 'none',
+  scrollTrigger: { start: 0, end: 'max', scrub: .3 }
+});
+
+/* ---------- HERO: pin + orbit scrub ---------- */
+ScrollTrigger.create({
+  trigger: '#hero',
+  start: 'top top',
+  end: '+=280%',
+  pin: true,
+  scrub: true,
+  onUpdate: self => {
+    orbit.target = self.progress * (orbit.count - 1);
+    // name drifts up + spreads slightly as you scroll
+    gsap.set('#name', { letterSpacing: (self.progress * .12) + 'em', opacity: 1 - Math.max(0, self.progress - .75) * 4 });
+    gsap.set('#hero .content', { y: self.progress * -60 });
+    gsap.set('#pill', { opacity: 1 - self.progress * 2.2 });
+    gsap.set('#scrollcue', { opacity: 1 - self.progress * 3 });
+  }
+});
+
+/* ---------- MANIFESTO kinetic lines ---------- */
+gsap.fromTo('#manifesto .one', { x: '12vw' }, {
+  x: '-32vw', ease: 'none',
+  scrollTrigger: { trigger: '#manifesto', start: 'top bottom', end: 'bottom top', scrub: .4 }
+});
+gsap.fromTo('#manifesto .two', { x: '-38vw' }, {
+  x: '6vw', ease: 'none',
+  scrollTrigger: { trigger: '#manifesto', start: 'top bottom', end: 'bottom top', scrub: .4 }
+});
+
+/* ---------- ABOUT reveal ---------- */
+gsap.utils.toArray('#about .bio p, #about .tag, #about .big-num').forEach(el => {
+  gsap.from(el, {
+    y: 60, opacity: 0, duration: 1.1, ease: 'power3.out',
+    scrollTrigger: { trigger: el, start: 'top 88%' }
+  });
+});
+
+/* ---------- STATS count-up ---------- */
+document.querySelectorAll('#stats .cnt').forEach(el => {
+  const to = parseFloat(el.dataset.to);
+  const dec = parseInt(el.dataset.dec || '0');
+  const obj = { v: 0 };
+  gsap.to(obj, {
+    v: to, duration: 1.8, ease: 'power2.out',
+    scrollTrigger: { trigger: '#stats', start: 'top 82%', once: true },
+    onUpdate: () => el.textContent = obj.v.toFixed(dec)
+  });
+});
+
+/* ---------- PILLARS: pin + builder scrub + sequential reveal ---------- */
+const pillarEls = gsap.utils.toArray('.pillar');
+let lastAct = -1;
+ScrollTrigger.create({
+  trigger: '#pillars',
+  start: 'top top',
+  end: '+=250%',
+  pin: true,
+  scrub: true,
+  onUpdate: self => {
+    builder.target = self.progress * (builder.count - 1);
+    const act = Math.min(pillarEls.length - 1, Math.floor(self.progress * pillarEls.length));
+    if (act !== lastAct) {
+      lastAct = act;
+      pillarEls.forEach((p, i) => gsap.to(p, {
+        opacity: i === act ? 1 : (i < act ? .3 : .13),
+        x: i <= act ? 0 : 40,
+        duration: .5, ease: 'power2.out', overwrite: 'auto'
+      }));
+    }
+  }
+});
+
+/* ---------- WORK: pin + closer scrub + horizontal cards ---------- */
+const track = document.getElementById('track');
+ScrollTrigger.create({
+  trigger: '#work',
+  start: 'top top',
+  end: '+=280%',
+  pin: true,
+  scrub: true,
+  onUpdate: self => {
+    closer.target = self.progress * (closer.count - 1);
+    const max = Math.max(0, track.scrollWidth - window.innerWidth);
+    gsap.set(track, { x: -self.progress * max });
+  }
+});
+
+/* ---------- card hover tilt ---------- */
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const rx = ((e.clientY - r.top) / r.height - .5) * -7;
+    const ry = ((e.clientX - r.left) / r.width - .5) * 9;
+    gsap.to(card, { rotateX: rx, rotateY: ry, y: -6, duration: .5, ease: 'power2.out', transformPerspective: 900 });
+  });
+  card.addEventListener('mouseleave', () => {
+    gsap.to(card, { rotateX: 0, rotateY: 0, y: 0, duration: .7, ease: 'elastic.out(1,.6)' });
+  });
+});
+
+/* ---------- RECENT builds: fast stagger ---------- */
+gsap.from('#recent .mini', {
+  y: 50, opacity: 0, duration: .7, ease: 'power3.out', stagger: .07,
+  scrollTrigger: { trigger: '#recent .grid', start: 'top 85%' }
+});
+gsap.from('#recent .head', {
+  y: 40, opacity: 0, duration: .9, ease: 'power3.out',
+  scrollTrigger: { trigger: '#recent', start: 'top 80%' }
+});
+
+/* ---------- NEXT teaser ---------- */
+gsap.from('#next .teaser', {
+  y: 70, opacity: 0, duration: 1, ease: 'power3.out',
+  scrollTrigger: { trigger: '#next .teaser', start: 'top 85%' }
+});
+
+/* ---------- FINALE ---------- */
+gsap.to('#finale h2 .row span', {
+  y: 0, duration: 1, ease: 'power4.out', stagger: .12,
+  scrollTrigger: { trigger: '#finale', start: 'top 70%' }
+});
+gsap.from('#finale .btns', {
+  y: 40, opacity: 0, duration: .9, delay: .2, ease: 'power3.out',
+  scrollTrigger: { trigger: '#finale', start: 'top 70%' }
+});
+
+/* ---------- expandable case studies ---------- */
+const FCDN = 'https://framerusercontent.com/images/';
+const PROJECTS = {
+  cam: `
+    <div class="ptag">Ai &middot; Imaging</div>
+    <h2>Camera App with AI</h2>
+    <p class="sub">AI-Driven Camera Application for High-Quality Imaging with Reduced File Size.</p>
+    <div class="meta"><span>Year : <b>2025</b></span><span>Type : <b>Android / AI</b></span></div>
+    <img src="assets/cam-cover.png" alt="Camera App with AI cover" loading="lazy">
+    <div class="chips">
+      <div class="chip"><b>5332&times;3000</b><span>Output vs 4000&times;2252 built-in</span></div>
+      <div class="chip"><b>&minus;55%</b><span>File size &mdash; 575 KB vs 1297 KB</span></div>
+      <div class="chip"><b>68.47</b><span>Sharpness vs 13.01 built-in</span></div>
+      <div class="chip"><b>85.11</b><span>Est. noise vs 108.43 built-in</span></div>
+    </div>
+    <div class="sec">Problem</div>
+    <p>Modern smartphone camera applications prioritize resolution and post-processing quality at the expense of large file sizes and inefficient storage usage. While native camera apps capture visually acceptable images, they rely on traditional pipelines that store high-resolution data without intelligently optimizing for perceptual quality, noise, or sharpness. This results in excessive storage consumption and limited flexibility for bandwidth- and memory-constrained environments.</p>
+    <img src="assets/cam-problem.png" alt="Pipeline comparison" loading="lazy">
+    <div class="sec">Solution</div>
+    <p>I built a custom camera app powered by AI upscaling that takes a smarter approach to image capture. Instead of relying on the default camera pipeline, my app reconstructs image details using AI, allowing the final output to be both higher in resolution and much smaller in size.</p>
+    <p>In testing, the custom app produced images at 5332&times;3000 resolution, compared to 4000&times;2252 from the built-in camera, while reducing the file size from 1297 KB to just 575 KB &mdash; a reduction of over 55%. Despite this, the images appeared sharper and cleaner, not compressed or degraded.</p>
+    <div class="duo">
+      <img src="assets/cam-compare-1.jpg" alt="Built-in camera sample" loading="lazy">
+      <img src="assets/cam-compare-2.jpg" alt="Custom AI camera sample" loading="lazy">
+    </div>
+    <div class="sec">Challenge</div>
+    <p>One of the hardest parts was ensuring that the AI enhancement didn't introduce unwanted artifacts or artificial textures. Increasing sharpness without amplifying noise required careful tuning. The custom camera achieved a sharpness score of 68.47 compared to 13.01 from the built-in app, and estimated noise was lower (85.11 vs 108.43) even though the custom images were higher resolution and smaller in size.</p>
+    <p>Maintaining structural consistency was another challenge. Metrics like SSIM (0.5806) and PSNR (14.38 dB) helped guide adjustments, but visual inspection played an equally important role in refining the final output.</p>
+    <div class="sec">Summary</div>
+    <p>This project showed that image quality doesn't have to come at the cost of storage. By combining AI-based upscaling with a more efficient capture pipeline, I was able to generate higher-resolution images that are sharper, cleaner, and more than twice as storage-efficient than those from the built-in camera app.</p>
+    <p>More than just improving numbers, this work reflects my interest in building practical AI systems &mdash; tools that quietly improve everyday experiences by being smarter, not heavier.</p>
+    <img src="assets/cam-final.jpg" alt="Final output sample" loading="lazy">`,
+  bud: `
+    <div class="ptag">Mobile &middot; Fintech</div>
+    <h2>Budget Flow</h2>
+    <p class="sub">A personal budgeting mobile app I built after trying countless complex budget apps filled with ads, confusing charts, and overwhelming features. Simple, clean, glass UI designed exactly for my taste.</p>
+    <div class="meta"><span>Year : <b>2026</b></span><span>Type : <b>Mobile / Glass UI</b></span></div>
+    <img src="assets/bud-cover.png" alt="Budget Flow cover" loading="lazy">
+    <div class="sec">Problem</div>
+    <p>I've tried so many budget apps, but they all feel the same: complex usage with endless screens, intrusive ads everywhere, tiny text I have to squint at, and features I never use. They make money management stressful instead of simple. I just want to see my bank balance, weekly spending across 4 categories, how much salary comes in, and who I gave money to &mdash; without the clutter.</p>
+    <div class="sec">Solution</div>
+    <p>I built Budget Flow for myself: a single screen with glass cards that show everything at a glance. Tap the glowing balance capsule to set my bank balance. Slide to set my weekly budget limit. Tap categories (Food, Home, Shopping, Other) to log spending. Everything updates instantly and subtracts from my balance. No ads, no subscriptions, no complexity &mdash; just clean glass UI with smooth animations, metallic numbers, and a dark gradient background that feels calm to use daily.</p>
+    <p>Added exactly what I needed: auto weekly salary credit, extra safety funds, and a "gave money" list where I enter a person's name + amount (with edit/delete). All data stays local on my device forever.</p>
+    <div class="duo">
+      <img src="assets/bud-screens-1.png" alt="Budget Flow screens" loading="lazy">
+      <img src="assets/bud-screens-2.png" alt="Budget Flow screens" loading="lazy">
+    </div>
+    <div class="sec">Impact</div>
+    <p>Making it feel premium and smooth without killing battery or performance. Glass blur effects, liquid animations, pulsing gradients, and metallic text needed to look expensive while staying buttery smooth on mobile. Also keeping it dead simple &mdash; no menus, no tabs, no "pro" upsells &mdash; while still covering everything I actually use weekly.</p>
+    <div class="sec">Summary</div>
+    <p>Budget Flow is the clean budgeting app I built for myself after rejecting every ad-filled complex alternative. Glassmorphism UI, instant balance updates, weekly category tracking, salary automation, and a gave-money ledger &mdash; all on one beautiful screen with zero distractions. Exactly how I want my money app to feel.</p>
+    <div class="duo">
+      <img src="assets/bud-detail-1.jpg" alt="Budget Flow detail" loading="lazy">
+      <img src="assets/bud-detail-2.jpg" alt="Budget Flow detail" loading="lazy">
+    </div>`,
+  spad: `
+    <div class="ptag">3D &middot; Visual</div>
+    <h2>3D Modeling &amp; Compositing</h2>
+    <p class="sub">A dynamic 3D modeling and compositing workflow built in Blender to enhance presentation quality through layered geometric frameworks and immersive visual storytelling.</p>
+    <div class="meta"><span>Year : <b>2025</b></span><span>Type : <b>Blender / 3D</b></span></div>
+    <img src="assets/spad-cover.jpg" alt="3D Modeling cover" loading="lazy">
+    <div class="sec">Problem</div>
+    <p>Traditional presentations often rely on static 2D slides that fail to communicate spatial depth, technical detail, or narrative flow effectively. This results in viewer disengagement and a lack of visual impact, especially in technical or architectural contexts.</p>
+    <img src="assets/spad-wire.jpg" alt="Wireframe study" loading="lazy">
+    <div class="sec">Solution</div>
+    <p>Using Blender's compositing and geometry nodes, I developed a layered 3D framework that integrates modular scenes, wireframe overlays, and rendered imagery within a structured spatial environment. The project centers around SPAD &mdash; a conceptual architectural and product visualization system &mdash; where individual elements are positioned within a geometric lattice that guides the viewer's focus.</p>
+    <p>By combining 3D composition techniques with strategic use of transparency, lighting, and depth of field, the workflow transforms presentation slides into immersive visual experiences. The modular nature of the system allows rapid iteration and customization for different presentation contexts.</p>
+    <div class="duo">
+      <img src="assets/spad-layer-1.jpg" alt="Layered composition" loading="lazy">
+      <img src="assets/spad-layer-2.jpg" alt="Geometric lattice" loading="lazy">
+    </div>
+    <div class="sec">Challenge</div>
+    <p>Maintaining clarity while layering multiple 3D elements is inherently difficult. Overcomplicating the scene can obscure the core message, while under-designing risks losing visual appeal. Balancing aesthetic sophistication with functional clarity requires careful control of hierarchy, composition, and color grading.</p>
+    <p>Additionally, ensuring that exported frames are presentation-ready without excessive rendering time was a technical constraint that required workflow optimization.</p>
+    <div class="sec">Summary</div>
+    <p>SPAD is a Blender-based 3D modeling and compositing system designed to elevate presentation design through spatial storytelling and geometric structure. The result is a flexible, modular framework that bridges the gap between traditional slide design and immersive 3D communication.</p>
+    <img src="assets/spad-final.png" alt="Final composite" loading="lazy">`
+};
+
+const pmodal = document.getElementById('pmodal');
+const pmInner = document.getElementById('pm-inner');
+let modalOpen = false;
+function openProj(key) {
+  if (!PROJECTS[key] || modalOpen) return;
+  modalOpen = true;
+  pmInner.innerHTML = PROJECTS[key];
+  pmodal.style.display = 'block';
+  pmodal.querySelector('.sheet').scrollTop = 0;
+  lenis.stop();
+  gsap.fromTo('#pmodal .scrim', { opacity: 0 }, { opacity: 1, duration: .4 });
+  gsap.fromTo('#pm-inner', { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: .7, ease: 'power3.out', delay: .1 });
+  gsap.fromTo('#pm-close', { opacity: 0 }, { opacity: 1, duration: .4, delay: .3 });
+}
+function closeProj() {
+  if (!modalOpen) return;
+  modalOpen = false;
+  gsap.to('#pm-inner', { y: 40, opacity: 0, duration: .35, ease: 'power2.in' });
+  gsap.to('#pmodal .scrim, #pm-close', {
+    opacity: 0, duration: .35, delay: .1,
+    onComplete: () => { pmodal.style.display = 'none'; lenis.start(); }
+  });
+}
+document.querySelectorAll('.card[data-proj]').forEach(c => c.addEventListener('click', () => openProj(c.dataset.proj)));
+document.getElementById('pm-close').addEventListener('click', closeProj);
+pmodal.querySelector('.scrim').addEventListener('click', closeProj);
+window.addEventListener('keydown', e => { if (e.key === 'Escape') closeProj(); });
+
+/* ---------- anchor nav via lenis ---------- */
+document.querySelectorAll('header nav a, header .mark').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if (id && id.startsWith('#')) { e.preventDefault(); lenis.scrollTo(id, { duration: 1.6 }); }
+  });
+});
+
+/* ---------- glowing cursor ---------- */
+const cursorEl = document.getElementById('cursor');
+if (window.matchMedia('(pointer:fine)').matches) {
+  gsap.set(cursorEl, { xPercent: -50, yPercent: -50 });
+  const cx = gsap.quickTo(cursorEl, 'x', { duration: .16, ease: 'power3.out' });
+  const cy = gsap.quickTo(cursorEl, 'y', { duration: .16, ease: 'power3.out' });
+  window.addEventListener('mousemove', e => { cx(e.clientX); cy(e.clientY); });
+  window.addEventListener('mouseover', e => { if (e.target.closest('a,button,.card,.mini')) gsap.to(cursorEl, { scale: 2.4, duration: .3 }); });
+  window.addEventListener('mouseout', e => { if (e.target.closest('a,button,.card,.mini')) gsap.to(cursorEl, { scale: 1, duration: .3 }); });
+}
+
+console.log('[PRATHEEN] site ready — orbit frames:', orbit.count);
+</script>
+</body>
+</html>
